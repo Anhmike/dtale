@@ -3255,9 +3255,41 @@ def test_update_theme():
         build_settings({c.port: app_settings})
 
         c.get("/dtale/update-theme", query_string={"theme": "dark"})
-        assert app_settings["theme"]
+        assert global_state.get_app_settings()["theme"] == "dark"
         response = c.get("/dtale/main/{}".format(c.port))
         assert '<body class="dark-mode"' in str(response.data)
+
+
+@pytest.mark.unit
+def test_update_pin_menu():
+    import dtale.views as views
+
+    df, _ = views.format_data(pd.DataFrame([1, 2, 3, 4, 5]))
+    with build_app(url=URL).test_client() as c:
+        build_data_inst({c.port: df})
+        build_dtypes({c.port: views.build_dtypes_state(df)})
+
+        app_settings = {"pin_menu": False}
+        build_settings({c.port: app_settings})
+
+        c.get("/dtale/update-pin-menu", query_string={"pinned": True})
+        assert global_state.get_app_settings()["pin_menu"]
+
+
+@pytest.mark.unit
+def test_update_language():
+    import dtale.views as views
+
+    df, _ = views.format_data(pd.DataFrame([1, 2, 3, 4, 5]))
+    with build_app(url=URL).test_client() as c:
+        build_data_inst({c.port: df})
+        build_dtypes({c.port: views.build_dtypes_state(df)})
+
+        app_settings = {"language": "en"}
+        build_settings({c.port: app_settings})
+
+        c.get("/dtale/update-language", query_string={"language": "cn"})
+        assert global_state.get_app_settings()["language"] == "cn"
 
 
 @pytest.mark.unit
